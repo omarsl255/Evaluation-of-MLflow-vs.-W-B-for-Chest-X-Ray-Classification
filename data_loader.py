@@ -59,18 +59,33 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
     """
     Load COVID-19 dataset from directory structure.
     
-    Expected directory structure:
-    dataset_path/
-        COVID-19/
-            image1.jpg
-            image2.jpg
-            ...
-        Viral Pneumonia/
-            image1.jpg
-            ...
-        Normal/
-            image1.jpg
-            ...
+    Expected directory structure (either):
+    1. Flat structure:
+        dataset_path/
+            COVID-19/ or Covid/
+                image1.jpg
+                ...
+            Viral Pneumonia/
+                image1.jpg
+                ...
+            Normal/
+                image1.jpg
+                ...
+    
+    2. Nested structure (Kaggle dataset):
+        dataset_path/
+            Covid19-dataset/
+                train/
+                    Covid/
+                        image1.jpg
+                        ...
+                    Normal/
+                        ...
+                    Viral Pneumonia/
+                        ...
+                test/
+                    ...
+        In this case, use the 'train' folder path
     
     Args:
         dataset_path: Path to the dataset directory
@@ -89,24 +104,62 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
     class_names = ['COVID-19', 'Viral Pneumonia', 'Normal']
     class_to_idx = {name: idx for idx, name in enumerate(class_names)}
     
+    # Check if dataset_path points to a nested structure (Covid19-dataset/train)
+    # or if we need to navigate to it
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(f"Dataset path not found: {dataset_path}")
+    
+    # Try to find the actual data directory
+    # Check if we're at the root and need to go into Covid19-dataset/train
+    current_path = dataset_path
+    
+    # Check if path ends with Covid19-dataset and has train/test subdirectories
+    if os.path.basename(current_path).lower() == 'covid19-dataset':
+        train_path = os.path.join(current_path, 'train')
+        if os.path.exists(train_path):
+            current_path = train_path
+            print(f"Found Covid19-dataset structure, using train folder: {current_path}")
+    # Check if we're at a parent directory that contains Covid19-dataset
+    elif 'Covid19-dataset' in os.listdir(current_path) if os.path.exists(current_path) else []:
+        covid_dataset_path = os.path.join(current_path, 'Covid19-dataset')
+        train_path = os.path.join(covid_dataset_path, 'train')
+        if os.path.exists(train_path):
+            current_path = train_path
+            print(f"Found nested structure, using: {current_path}")
+    # Check if path contains train or test subdirectory
+    elif os.path.basename(current_path).lower() in ['train', 'test']:
+        # We're already in train or test folder, use it directly
+        print(f"Using dataset path: {current_path}")
+    else:
+        # Check if train subdirectory exists
+        train_path = os.path.join(current_path, 'train')
+        if os.path.exists(train_path):
+            current_path = train_path
+            print(f"Found train subdirectory, using: {current_path}")
+    
     # Collect all image paths and labels
     image_paths = []
     labels = []
     
     # Scan for common variations of class folder names
     possible_class_names = {
-        'COVID-19': ['COVID-19', 'Covid', 'covid', 'covid-19', 'COVID'],
-        'Viral Pneumonia': ['Viral Pneumonia', 'Viral', 'viral', 'viral_pneumonia'],
+        'COVID-19': ['COVID-19', 'Covid', 'covid', 'covid-19', 'COVID', 'Covid19', 'covid19'],
+        'Viral Pneumonia': ['Viral Pneumonia', 'Viral', 'viral', 'viral_pneumonia', 'Viral Pneumonia'],
         'Normal': ['Normal', 'normal', 'NORMAL']
     }
     
-    if not os.path.exists(dataset_path):
-        raise FileNotFoundError(f"Dataset path not found: {dataset_path}")
-    
     # Find class directories
     found_classes = {}
-    for item in os.listdir(dataset_path):
-        item_path = os.path.join(dataset_path, item)
+    if not os.path.exists(current_path):
+        raise FileNotFoundError(f"Dataset path not found: {current_path}")
+    
+    try:
+        items = os.listdir(current_path)
+    except PermissionError:
+        raise FileNotFoundError(f"Cannot access dataset path: {current_path}")
+    
+    for item in items:
+        item_path = os.path.join(current_path, item)
         if os.path.isdir(item_path):
             for class_name, variants in possible_class_names.items():
                 if item in variants and class_name not in found_classes:
@@ -115,8 +168,8 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
     
     # If exact match not found, try case-insensitive match
     if len(found_classes) < 3:
-        for item in os.listdir(dataset_path):
-            item_path = os.path.join(dataset_path, item)
+        for item in items:
+            item_path = os.path.join(current_path, item)
             if os.path.isdir(item_path):
                 item_lower = item.lower()
                 for class_name, variants in possible_class_names.items():
@@ -133,16 +186,26 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
             # Supported image extensions
             image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']
             
-            for filename in os.listdir(class_dir):
+            try:
+                filenames = os.listdir(class_dir)
+            except (PermissionError, OSError) as e:
+                print(f"Warning: Cannot access directory {class_dir}: {e}")
+                continue
+            
+            for filename in filenames:
                 if any(filename.lower().endswith(ext) for ext in image_extensions):
                     image_path = os.path.join(class_dir, filename)
-                    image_paths.append(image_path)
-                    labels.append(class_idx)
+                    # Verify file actually exists before adding
+                    if os.path.isfile(image_path):
+                        image_paths.append(image_path)
+                        labels.append(class_idx)
         else:
-            print(f"Warning: Class directory '{class_name}' not found in dataset path")
+            print(f"Warning: Class directory '{class_name}' not found in dataset path: {current_path}")
+            print(f"  Available directories: {[item for item in items if os.path.isdir(os.path.join(current_path, item))]}")
     
     if len(image_paths) == 0:
-        raise ValueError(f"No images found in dataset path: {dataset_path}")
+        raise ValueError(f"No images found in dataset path: {current_path}\n"
+                        f"Please check that the dataset is properly downloaded and extracted.")
     
     print(f"Total images found: {len(image_paths)}")
     print(f"Class distribution:")

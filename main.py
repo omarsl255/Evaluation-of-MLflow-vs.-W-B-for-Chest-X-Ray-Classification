@@ -25,6 +25,26 @@ def download_dataset():
         # Download latest version
         path = kagglehub.dataset_download("pranavraikokte/covid19-image-dataset")
         print(f"Dataset downloaded to: {path}")
+        
+        # Check for the actual data directory
+        import os
+        # The dataset might be in a nested structure
+        possible_paths = [
+            os.path.join(path, "Covid19-dataset", "train"),
+            os.path.join(path, "train"),
+            path
+        ]
+        
+        for test_path in possible_paths:
+            if os.path.exists(test_path):
+                # Check if it has class folders
+                items = [item for item in os.listdir(test_path) 
+                        if os.path.isdir(os.path.join(test_path, item))]
+                if any(item.lower() in ['covid', 'normal', 'viral'] for item in items):
+                    print(f"Found dataset at: {test_path}")
+                    return test_path
+        
+        # Return the original path and let the data loader figure it out
         return path
     except Exception as e:
         print(f"Error downloading dataset: {e}")
@@ -65,9 +85,14 @@ Examples:
         if dataset_path:
             print(f"\nDataset ready at: {dataset_path}")
             print("\nNext steps:")
-            print("1. Train with MLflow: python train_mlflow.py --dataset_path <path> --epochs 20")
-            print("2. Train with W&B: python train_wandb.py --dataset_path <path> --epochs 20")
-            print("3. Compare both: python compare_mlflow_wandb.py --dataset_path <path> --epochs 10")
+            # Check if dataset is in project directory
+            project_dataset = os.path.join(os.path.dirname(__file__), "Covid19-dataset")
+            if os.path.exists(project_dataset):
+                dataset_path = project_dataset
+                print(f"\nNote: Found dataset in project directory: {dataset_path}")
+            print(f"\n1. Train with MLflow: python train_mlflow.py --dataset_path \"{dataset_path}\" --epochs 20")
+            print(f"2. Train with W&B: python train_wandb.py --dataset_path \"{dataset_path}\" --epochs 20")
+            print(f"3. Compare both: python compare_mlflow_wandb.py --dataset_path \"{dataset_path}\" --epochs 10")
     else:
         print("COVID-19 Chest X-Ray Classification Project")
         print("=" * 60)

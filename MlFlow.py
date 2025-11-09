@@ -248,11 +248,20 @@ def train_with_mlflow(model, train_loader, val_loader, config, num_epochs,
         
         # Log confusion matrix as artifact
         import tempfile
+        import time
         cm = confusion_matrix(all_labels, all_preds)
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.npy', delete=False) as f:
-            np.save(f.name, cm)
-            mlflow.log_artifact(f.name, 'confusion_matrix')
-            os.remove(f.name)
+        temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.npy', delete=False)
+        temp_file.close()
+        try:
+            np.save(temp_file.name, cm)
+            mlflow.log_artifact(temp_file.name, 'confusion_matrix')
+        finally:
+            # Wait a bit and try to delete, ignore errors on Windows
+            time.sleep(0.1)
+            try:
+                os.remove(temp_file.name)
+            except (PermissionError, OSError):
+                pass  # File might be locked on Windows, that's okay
         
         print(f"\nTraining completed!")
         print(f"Best Validation Accuracy: {best_val_acc:.2f}%")
@@ -336,11 +345,20 @@ def evaluate_with_mlflow(model, test_loader, device, class_names, log_to_mlflow=
                 
                 # Log confusion matrix
                 import tempfile
+                import time
                 cm = confusion_matrix(all_labels, all_preds)
-                with tempfile.NamedTemporaryFile(mode='w', suffix='.npy', delete=False) as f:
-                    np.save(f.name, cm)
-                    mlflow.log_artifact(f.name, 'test_confusion_matrix')
-                    os.remove(f.name)
+                temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.npy', delete=False)
+                temp_file.close()
+                try:
+                    np.save(temp_file.name, cm)
+                    mlflow.log_artifact(temp_file.name, 'test_confusion_matrix')
+                finally:
+                    # Wait a bit and try to delete, ignore errors on Windows
+                    time.sleep(0.1)
+                    try:
+                        os.remove(temp_file.name)
+                    except (PermissionError, OSError):
+                        pass  # File might be locked on Windows, that's okay
         except Exception as e:
             print(f"Warning: Could not log to MLflow: {e}")
     
