@@ -57,8 +57,9 @@ mlflow_config:
 
 # Execution settings
 execution:
-  run_all_combinations: false  # If true, runs all combinations (can be many!)
-  max_experiments: 10  # Maximum number of experiments to run (if run_all_combinations is false)
+  # Set max_experiments to None or remove this line to run ALL combinations
+  # Current grid generates 162 combinations (3×3×3×2×3)
+  max_experiments: 10  # Maximum number of experiments to run (set to null or remove to run all)
   shuffle: true  # Shuffle experiments before running
   continue_on_error: true  # Continue to next experiment if one fails
 
