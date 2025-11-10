@@ -134,9 +134,25 @@ Follow the instructions to create a free account and get your API key.
 
 ## Usage
 
+**TIP**: We provide a [Makefile](Makefile) to simplify commands. See [GETTING_STARTED.md](GETTING_STARTED.md) for quick reference.
+
+```bash
+# See all available commands
+make help
+
+# Quick examples
+make wandb-quick      # Quick W&B test
+make mlflow-quick     # Quick MLflow test
+make compare          # Compare both tools
+```
+
 ### 1. Download Dataset
 
 ```bash
+# Using Makefile
+make download
+
+# Or manually
 python main.py --download
 ```
 

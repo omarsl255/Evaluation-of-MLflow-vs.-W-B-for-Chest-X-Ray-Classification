@@ -2,7 +2,34 @@
 
 This is a quick reference guide to help you navigate the project.
 
-## Quick Commands
+## Using the Makefile (Recommended!)
+
+We've created a Makefile to simplify all commands. Just type `make` followed by the command:
+
+```bash
+# See all available commands
+make help
+
+# Quick W&B hyperparameter test
+make wandb-quick
+
+# Full W&B hyperparameter tuning
+make wandb-tune
+
+# Quick MLflow hyperparameter test
+make mlflow-quick
+
+# Compare MLflow vs W&B
+make compare
+
+# Train with custom parameters
+make train-custom EPOCHS=50 BATCH_SIZE=64
+
+# Start MLflow UI
+make mlflow-ui
+```
+
+## Manual Commands (if not using Makefile)
 
 ### Run W&B Hyperparameter Tuning
 ```bash
