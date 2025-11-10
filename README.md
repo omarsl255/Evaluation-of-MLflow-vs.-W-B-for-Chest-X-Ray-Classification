@@ -71,11 +71,16 @@ This project evaluates and compares **MLflow** and **Weights & Biases (W&B)** fo
 │
 ├── main.py                       # Main entry point
 ├── requirements.txt              # Python dependencies
-├── PROJECT_STRUCTURE.md          # Detailed structure documentation
 └── README.md                     # This file
 ```
 
-**See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed structure documentation.**
+## Documentation
+
+- **[Quick Start Guide](docs/guides/QUICK_START.md)** - Get started quickly with the project
+- **[W&B Quick Start](docs/guides/WANDB_QUICK_START.md)** - Quick start guide for W&B experiments
+- **[Project Structure](docs/guides/PROJECT_STRUCTURE.md)** - Detailed project structure documentation
+- **[Migration Guide](docs/guides/MIGRATION_GUIDE.md)** - Guide for migrating between versions
+- **[Structure Improvements](docs/guides/STRUCTURE_IMPROVEMENTS.md)** - Recent structure improvements
 
 ## Model Architecture
 
