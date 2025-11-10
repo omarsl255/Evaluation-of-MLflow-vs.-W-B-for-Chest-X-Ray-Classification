@@ -4,7 +4,7 @@ This document shows examples of how to use the parameter matrix system.
 
 ## Example 1: Simple Experiment Configuration
 
-### File: `configs/experiments.yaml`
+### File: `configs/mlflow/experiments.yaml`
 
 ```yaml
 experiments:
@@ -26,7 +26,7 @@ experiments:
 
 ### Run:
 ```bash
-python run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/experiments.yaml
 ```
 
 ### Result:
@@ -34,7 +34,7 @@ python run_hyperparameter_tuning.py --config configs/experiments.yaml
 
 ## Example 2: Parameter Grid (All Combinations)
 
-### File: `configs/hyperparameters.yaml`
+### File: `configs/mlflow/hyperparameters.yaml`
 
 ```yaml
 parameter_grid:
@@ -45,7 +45,7 @@ parameter_grid:
 
 ### Run:
 ```bash
-python run_hyperparameter_tuning.py
+python scripts/run_hyperparameter_tuning.py
 ```
 
 ### Result:
@@ -53,7 +53,7 @@ python run_hyperparameter_tuning.py
 
 ## Example 3: Adding a New Experiment
 
-### Step 1: Edit `configs/experiments.yaml`
+### Step 1: Edit `configs/mlflow/experiments.yaml`
 
 Add this to the `experiments` list:
 
@@ -71,7 +71,7 @@ experiments:
 
 ### Step 2: Run
 ```bash
-python run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/experiments.yaml
 ```
 
 ### Step 3: View Results
@@ -138,7 +138,7 @@ experiments:
 
 ### Run:
 ```bash
-python run_hyperparameter_tuning.py --config configs/learning_rate_sweep.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/learning_rate_sweep.yaml
 ```
 
 ## Example 5: Batch Size Comparison

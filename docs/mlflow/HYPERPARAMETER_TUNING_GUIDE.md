@@ -6,22 +6,22 @@ This guide explains how to use the parameter matrix system for hyperparameter tu
 
 ### 1. Run with Default Configuration
 ```bash
-python run_hyperparameter_tuning.py
+python scripts/run_hyperparameter_tuning.py
 ```
 
 ### 2. Run with Specific Config File
 ```bash
-python run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
 ```
 
 ### 3. Run Quick Test (Fewer Experiments)
 ```bash
-python run_hyperparameter_tuning.py --quick
+python scripts/run_hyperparameter_tuning.py --quick
 ```
 
 ## Configuration Files
 
-### 1. `configs/hyperparameters.yaml` - Parameter Grid
+### 1. `configs/mlflow/hyperparameters.yaml` - Parameter Grid
 Defines a grid of parameters to try. All combinations will be generated.
 
 ```yaml
@@ -33,7 +33,7 @@ parameter_grid:
 
 This will generate 3 × 3 × 3 = 27 experiments.
 
-### 2. `configs/experiments.yaml` - Specific Experiments
+### 2. `configs/mlflow/experiments.yaml` - Specific Experiments
 Define exact experiments to run with specific parameters.
 
 ```yaml
@@ -48,7 +48,7 @@ experiments:
 
 ### Option 1: Edit Parameter Grid (Hyperparameter Search)
 
-Edit `configs/hyperparameters.yaml`:
+Edit `configs/mlflow/hyperparameters.yaml`:
 
 ```yaml
 parameter_grid:
@@ -62,7 +62,7 @@ parameter_grid:
 
 ### Option 2: Define Specific Experiments (Recommended)
 
-Edit `configs/experiments.yaml`:
+Edit `configs/mlflow/experiments.yaml`:
 
 ```yaml
 experiments:
@@ -79,9 +79,9 @@ Add as many experiments as you want!
 
 ### Option 3: Create New Config File
 
-1. Copy `configs/experiments.yaml` to `configs/my_config.yaml`
+1. Copy `configs/mlflow/experiments.yaml` to `configs/mlflow/my_config.yaml`
 2. Modify the parameters
-3. Run: `python run_hyperparameter_tuning.py --config configs/my_config.yaml`
+3. Run: `python scripts/run_hyperparameter_tuning.py --config configs/mlflow/my_config.yaml`
 
 ## Configuration Structure
 
@@ -131,10 +131,10 @@ execution:
 ## Command Line Options
 
 ```bash
-python run_hyperparameter_tuning.py [OPTIONS]
+python scripts/run_hyperparameter_tuning.py [OPTIONS]
 
 Options:
-  --config PATH              Path to YAML config file
+  --config PATH              Path to YAML config file (default: configs/mlflow/hyperparameters.yaml)
   --quick                    Use quick test configuration
   --max-experiments N        Maximum number of experiments to run
   --shuffle                  Shuffle experiments before running
@@ -144,22 +144,22 @@ Options:
 
 ### Example 1: Run Specific Experiments
 ```bash
-python run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
 ```
 
 ### Example 2: Quick Test (Few Experiments)
 ```bash
-python run_hyperparameter_tuning.py --quick
+python scripts/run_hyperparameter_tuning.py --quick
 ```
 
 ### Example 3: Limit Number of Experiments
 ```bash
-python run_hyperparameter_tuning.py --max-experiments 5
+python scripts/run_hyperparameter_tuning.py --max-experiments 5
 ```
 
 ### Example 4: Custom Config File
 ```bash
-python run_hyperparameter_tuning.py --config configs/my_custom_config.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/my_custom_config.yaml
 ```
 
 ## Workflow
@@ -170,13 +170,13 @@ python run_hyperparameter_tuning.py --config configs/my_custom_config.yaml
 - Estimate number of experiments
 
 ### 2. Create/Edit Config File
-- Use `configs/experiments.yaml` for specific experiments (recommended)
-- Use `configs/hyperparameters.yaml` for grid search
+- Use `configs/mlflow/experiments.yaml` for specific experiments (recommended)
+- Use `configs/mlflow/hyperparameters.yaml` for grid search
 - Or create your own config file
 
 ### 3. Run Experiments
 ```bash
-python run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
 ```
 
 ### 4. Monitor Progress
@@ -206,9 +206,9 @@ python run_hyperparameter_tuning.py --config configs/experiments.yaml
 
 ### 3. Organize Experiments
 Create different config files for different purposes:
-- `configs/baseline.yaml` - Baseline experiments
-- `configs/learning_rate_tuning.yaml` - Learning rate experiments
-- `configs/batch_size_tuning.yaml` - Batch size experiments
+- `configs/mlflow/baseline.yaml` - Baseline experiments
+- `configs/mlflow/learning_rate_tuning.yaml` - Learning rate experiments
+- `configs/mlflow/batch_size_tuning.yaml` - Batch size experiments
 
 ### 4. Limit Experiments
 Use `max_experiments` to avoid running too many:
@@ -219,13 +219,13 @@ execution:
 
 Or use command line:
 ```bash
-python run_hyperparameter_tuning.py --max-experiments 10
+python scripts/run_hyperparameter_tuning.py --max-experiments 10
 ```
 
 ### 5. Shuffle Experiments
 Shuffle to avoid bias from running order:
 ```bash
-python run_hyperparameter_tuning.py --shuffle
+python scripts/run_hyperparameter_tuning.py --shuffle
 ```
 
 ## Viewing Results
@@ -242,7 +242,7 @@ Open http://localhost:5000
 3. View metrics, parameters, and training curves
 
 ### Export Results
-Use the MLflow API to export results to CSV (see `example_mlflow_usage.py`).
+Use the MLflow API to export results to CSV (see `examples/example_mlflow_usage.py`).
 
 ## Common Parameter Ranges
 
@@ -294,5 +294,5 @@ Use the MLflow API to export results to CSV (see `example_mlflow_usage.py`).
 
 - MLflow Guide: [MLFLOW_GUIDE.md](MLFLOW_GUIDE.md)
 - MLflow Quick Start: [MLFLOW_QUICK_START.md](MLFLOW_QUICK_START.md)
-- Example Usage: `python example_mlflow_usage.py`
+- Example Usage: `python examples/example_mlflow_usage.py`
 

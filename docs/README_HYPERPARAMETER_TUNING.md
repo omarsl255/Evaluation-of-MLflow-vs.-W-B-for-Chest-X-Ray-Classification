@@ -8,7 +8,7 @@ A parameter matrix system that allows you to easily run multiple experiments wit
 
 ### 1. Edit Configuration File
 
-Edit `configs/experiments.yaml` and add your experiments:
+Edit `configs/mlflow/experiments.yaml` and add your experiments:
 
 ```yaml
 experiments:
@@ -23,7 +23,7 @@ experiments:
 ### 2. Run Experiments
 
 ```bash
-python run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
 ```
 
 ### 3. View Results
@@ -36,7 +36,7 @@ Open http://localhost:5000 to compare all experiments!
 
 ## Example: Adding a New Experiment
 
-1. Open `configs/experiments.yaml`
+1. Open `configs/mlflow/experiments.yaml`
 2. Add a new experiment:
 
 ```yaml
@@ -51,15 +51,15 @@ experiments:
     lr_step_size: 10
 ```
 
-3. Run: `python run_hyperparameter_tuning.py --config configs/experiments.yaml`
+3. Run: `python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml`
 
 That's it! The experiment will run automatically.
 
 ## Configuration Files
 
-- `configs/experiments.yaml` - Define specific experiments (recommended)
-- `configs/hyperparameters.yaml` - Parameter grid (all combinations)
-- `configs/quick_test.yaml` - Quick test with few experiments
+- `configs/mlflow/experiments.yaml` - Define specific experiments (recommended)
+- `configs/mlflow/hyperparameters.yaml` - Parameter grid (all combinations)
+- `configs/mlflow/quick_test.yaml` - Quick test with few experiments
 
 ## Common Modifications
 
@@ -83,5 +83,5 @@ That's it! The experiment will run automatically.
 
 ## Full Documentation
 
-See [HYPERPARAMETER_TUNING_GUIDE.md](HYPERPARAMETER_TUNING_GUIDE.md) for complete documentation.
+See [docs/mlflow/HYPERPARAMETER_TUNING_GUIDE.md](docs/mlflow/HYPERPARAMETER_TUNING_GUIDE.md) for complete documentation.
 
