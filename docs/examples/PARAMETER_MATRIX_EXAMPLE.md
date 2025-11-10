@@ -26,7 +26,7 @@ experiments:
 
 ### Run:
 ```bash
-python scripts/run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
 ```
 
 ### Result:
@@ -45,7 +45,7 @@ parameter_grid:
 
 ### Run:
 ```bash
-python scripts/run_hyperparameter_tuning.py
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/hyperparameters.yaml
 ```
 
 ### Result:
@@ -71,7 +71,7 @@ experiments:
 
 ### Step 2: Run
 ```bash
-python scripts/run_hyperparameter_tuning.py --config configs/experiments.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
 ```
 
 ### Step 3: View Results
@@ -81,7 +81,7 @@ python -m mlflow ui
 
 ## Example 4: Learning Rate Sweep
 
-### File: `configs/learning_rate_sweep.yaml`
+### File: `configs/mlflow/learning_rate_sweep.yaml`
 
 ```yaml
 base_config:
@@ -138,12 +138,12 @@ experiments:
 
 ### Run:
 ```bash
-python scripts/run_hyperparameter_tuning.py --config configs/learning_rate_sweep.yaml
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/learning_rate_sweep.yaml
 ```
 
 ## Example 5: Batch Size Comparison
 
-### File: `configs/batch_size_comparison.yaml`
+### File: `configs/mlflow/batch_size_comparison.yaml`
 
 ```yaml
 experiments:
@@ -170,7 +170,7 @@ experiments:
 
 ## Example 6: Comprehensive Grid Search
 
-### File: `configs/comprehensive_search.yaml`
+### File: `configs/mlflow/comprehensive_search.yaml`
 
 ```yaml
 parameter_grid:
