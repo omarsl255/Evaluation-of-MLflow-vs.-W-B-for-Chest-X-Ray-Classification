@@ -48,6 +48,10 @@ wandb/
 data/
 datasets/
 
+# Allow src/data/ directory (source code, not dataset)
+!src/data/
+!src/data/*.py
+
 # Temporary files
 *.tmp
 *.log
