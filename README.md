@@ -2,6 +2,55 @@
 
 This project evaluates and compares **MLflow** and **Weights & Biases (W&B)** for experiment tracking and model management in a deep learning classification task.
 
+---
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+make install
+
+# Download dataset
+make download
+
+# Run quick W&B experiment (recommended for first-time users)
+make wandb-quick
+
+# Or try MLflow
+make mlflow-quick
+
+# Compare both tracking tools
+make compare
+```
+
+📚 **New here?** Check out:
+- [Getting Started Guide](GETTING_STARTED.md) - Command reference
+- [Before & After Guide](BEFORE_AFTER.md) - See the improvements
+- [Documentation Index](docs/README.md) - Complete documentation guide
+
+---
+
+## 📑 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Dataset](#dataset)
+- [Project Structure](#project-structure)
+- [Documentation](#documentation)
+- [Model Architecture](#model-architecture)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Download Dataset](#1-download-dataset)
+  - [Train with MLflow](#2-train-with-mlflow)
+  - [Train with W&B](#3-train-with-wb)
+  - [Hyperparameter Tuning](#4-hyperparameter-tuning)
+  - [Compare Tools](#5-compare-mlflow-and-wb)
+- [Comparison: MLflow vs W&B](#comparison-mlflow-vs-wb)
+- [Requirements](#requirements)
+- [Troubleshooting](#troubleshooting)
+- [License & Citation](#license)
+
+---
+
 ## Dataset
 
 **COVID-19 Image Dataset**
@@ -71,11 +120,16 @@ This project evaluates and compares **MLflow** and **Weights & Biases (W&B)** fo
 │
 ├── main.py                       # Main entry point
 ├── requirements.txt              # Python dependencies
-├── PROJECT_STRUCTURE.md          # Detailed structure documentation
 └── README.md                     # This file
 ```
 
-**See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed structure documentation.**
+## Documentation
+
+- **[Quick Start Guide](docs/guides/QUICK_START.md)** - Get started quickly with the project
+- **[W&B Quick Start](docs/guides/WANDB_QUICK_START.md)** - Quick start guide for W&B experiments
+- **[Project Structure](docs/guides/PROJECT_STRUCTURE.md)** - Detailed project structure documentation
+- **[Migration Guide](docs/guides/MIGRATION_GUIDE.md)** - Guide for migrating between versions
+- **[Structure Improvements](docs/guides/STRUCTURE_IMPROVEMENTS.md)** - Recent structure improvements
 
 ## Model Architecture
 
@@ -129,9 +183,25 @@ Follow the instructions to create a free account and get your API key.
 
 ## Usage
 
+**TIP**: We provide a [Makefile](Makefile) to simplify commands. See [GETTING_STARTED.md](GETTING_STARTED.md) for quick reference.
+
+```bash
+# See all available commands
+make help
+
+# Quick examples
+make wandb-quick      # Quick W&B test
+make mlflow-quick     # Quick MLflow test
+make compare          # Compare both tools
+```
+
 ### 1. Download Dataset
 
 ```bash
+# Using Makefile
+make download
+
+# Or manually
 python main.py --download
 ```
 
