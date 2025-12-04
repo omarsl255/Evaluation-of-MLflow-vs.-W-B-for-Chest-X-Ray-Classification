@@ -1,16 +1,35 @@
-# Evaluation of MLflow vs. W&B for Chest X-Ray Classification
+# Experimental Evaluation: MLflow vs. Weights & Biases (W&B)
 
-This project evaluates and compares **MLflow** and **Weights & Biases (W&B)** for experiment tracking and model management in a deep learning classification task.
+## Project Goal
 
-## Dataset
+This project provides an **experimental evaluation and comparison** of **MLflow** and **Weights & Biases (W&B)** as experiment tracking tools for machine learning workflows. The evaluation focuses on:
 
-**COVID-19 Image Dataset**
+- **User-friendliness**: Ease of setup, usage, and navigation
+- **Feature set**: Capabilities, visualization, and tooling
+- **Integration**: How well each tool integrates into an existing ML workflow
+
+## Approach
+
+To ensure a **fair and comprehensive comparison**, this project:
+
+1. **Uses a real ML use case**: Chest X-Ray Classification (3-class: COVID-19, Viral Pneumonia, Normal)
+2. **Implements automated grid search**: Runs the same hyperparameter combinations on both tools
+3. **Generates sufficient data**: Executes 162+ experiments per tool for statistical significance
+4. **Maintains consistency**: Same model architecture, dataset, and hyperparameters across both tools
+
+This enables a direct, apples-to-apples comparison of MLflow and W&B under identical experimental conditions.
+
+## ML Use Case: Chest X-Ray Classification
+
+**Dataset**: COVID-19 Image Dataset
 - **Source**: Kaggle (pranavraikokte/covid19-image-dataset)
 - **Task**: 3-Way Classification
 - **Classes**: 
   - COVID-19
   - Viral Pneumonia
   - Normal
+
+This real-world medical imaging classification task serves as the experimental use case for comparing MLflow and W&B. The complexity and practical nature of this problem make it ideal for evaluating how each tool handles a production-like ML workflow.
 
 ## Project Structure
 
@@ -171,29 +190,39 @@ Then open http://localhost:5000 in your browser.
 
 **Note**: If `mlflow` command is not found, use `python -m mlflow ui` instead.
 
-**📖 For detailed MLflow usage instructions, see [docs/mlflow/MLFLOW_GUIDE.md](docs/mlflow/MLFLOW_GUIDE.md)**
+**📖 For detailed MLflow usage instructions, see [docs/MLFLOW_COMPLETE_GUIDE.md](docs/MLFLOW_COMPLETE_GUIDE.md)**
 
-### 2.1. Hyperparameter Tuning with Parameter Matrix
+### 2.1. Automated Grid Search for Comparison
 
-Run multiple experiments with different configurations easily:
+**Key Feature**: This project uses **automated grid search** to run the **same hyperparameter combinations** on both MLflow and W&B, enabling a fair comparison.
 
+**Grid Search Configuration:**
+- **162 total combinations** across 5 hyperparameters:
+  - Learning rate: 3 values [0.001, 0.0001, 0.01]
+  - Batch size: 3 values [32, 64, 16]
+  - Epochs: 3 values [20, 30, 50]
+  - LR gamma: 2 values [0.1, 0.5]
+  - LR step size: 3 values [5, 7, 10]
+
+**Run Grid Search:**
 ```bash
-# Run with default configuration (parameter grid)
-python scripts/run_hyperparameter_tuning.py
+# Run all 162 combinations (default)
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/hyperparameters.yaml
 
-# Run specific experiments from config file
-python scripts/run_hyperparameter_tuning.py --config configs/mlflow/experiments.yaml
+# Run limited number for testing
+python scripts/run_hyperparameter_tuning.py --config configs/mlflow/hyperparameters.yaml --max-experiments 10
 
-# Quick test with fewer experiments
+# Quick test (1 experiment)
 python scripts/run_hyperparameter_tuning.py --quick
 ```
 
-**Modify parameters easily:**
-1. Edit `configs/mlflow/experiments.yaml` to add/remove experiments
-2. Edit `configs/mlflow/hyperparameters.yaml` for grid search
-3. Run the script to execute all experiments
+**Why Grid Search?**
+- Ensures **identical experimental conditions** for both tools
+- Generates **sufficient data** (162+ runs) for meaningful comparison
+- Automates the process, eliminating manual bias
+- Enables statistical analysis of tracking tool performance
 
-**📖 See [docs/mlflow/HYPERPARAMETER_TUNING_GUIDE.md](docs/mlflow/HYPERPARAMETER_TUNING_GUIDE.md) for detailed instructions**
+**📖 See [docs/MLFLOW_COMPLETE_GUIDE.md](docs/MLFLOW_COMPLETE_GUIDE.md) for detailed instructions (Grid Search section)**
 
 ### 3. Train with W&B
 
@@ -222,41 +251,54 @@ python scripts/train_wandb.py --dataset_path "Covid19-dataset" --epochs 20 --bat
 **View Results:**
 Results are automatically uploaded to your W&B dashboard at https://wandb.ai
 
-**📖 For detailed W&B usage instructions, see [docs/wandb/WANDB_GUIDE.md](docs/wandb/WANDB_GUIDE.md)**
+**📖 For detailed W&B usage instructions, see [docs/WANDB_COMPLETE_GUIDE.md](docs/WANDB_COMPLETE_GUIDE.md)**
 
-### 3.1. Hyperparameter Tuning with W&B Parameter Matrix
+### 3.1. Automated Grid Search for Comparison
 
-Run multiple experiments with different configurations easily:
+**Same Grid Search as MLflow**: The W&B implementation uses the **identical grid search configuration** (162 combinations) to ensure fair comparison.
 
+**Run Grid Search:**
 ```bash
-# Run with default configuration (parameter grid)
-python scripts/run_wandb_hyperparameter_tuning.py
+# Run all 162 combinations (default)
+python scripts/run_wandb_hyperparameter_tuning.py --config configs/wandb/hyperparameters.yaml
 
-# Run specific experiments from config file
-python scripts/run_wandb_hyperparameter_tuning.py --config configs/wandb/experiments.yaml
+# Run limited number for testing
+python scripts/run_wandb_hyperparameter_tuning.py --config configs/wandb/hyperparameters.yaml --max-experiments 10
 
-# Quick test with fewer experiments
+# Quick test (1 experiment)
 python scripts/run_wandb_hyperparameter_tuning.py --quick
 ```
 
-**Modify parameters easily:**
-1. Edit `configs/wandb/experiments.yaml` to add/remove experiments
-2. Edit `configs/wandb/hyperparameters.yaml` for grid search
-3. Run the script to execute all experiments
+**Comparison Benefits:**
+- **Identical experiments** run on both tools
+- **Same hyperparameters** tested across platforms
+- **Consistent evaluation** of user experience and features
+- **Quantitative data** for objective comparison
 
-**📖 See [docs/wandb/WANDB_HYPERPARAMETER_TUNING_GUIDE.md](docs/wandb/WANDB_HYPERPARAMETER_TUNING_GUIDE.md) for detailed instructions**
+**📖 See [docs/WANDB_COMPLETE_GUIDE.md](docs/WANDB_COMPLETE_GUIDE.md) for detailed instructions (Grid Search section)**
 
-### 4. Compare MLflow vs W&B
+### 4. Direct Comparison: MLflow vs W&B
 
+**Automated Comparison Script:**
 ```bash
 python scripts/compare_mlflow_wandb.py --dataset_path "Covid19-dataset" --epochs 10
 ```
 
-This script runs the same experiment with both tracking tools and provides a comparison of:
-- Training time
-- Model performance metrics
-- Best validation accuracy
-- Test set performance
+This script runs the **same experiment** with both tracking tools side-by-side and provides a direct comparison of:
+- **Training time**: Performance overhead of each tool
+- **Model performance metrics**: Accuracy, loss, per-class metrics
+- **Best validation accuracy**: Model quality comparison
+- **Test set performance**: Generalization comparison
+- **User experience**: Setup complexity, ease of use
+- **Feature comparison**: Visualization, collaboration, integration
+
+**For Comprehensive Comparison:**
+After running grid search on both tools (162 experiments each), you can:
+1. Compare visualization quality and clarity
+2. Evaluate ease of experiment navigation
+3. Assess collaboration features
+4. Analyze integration complexity
+5. Review feature richness and usefulness
 
 **Options:**
 - `--dataset_path`: Path to the dataset directory (required)
@@ -313,41 +355,97 @@ The data loader automatically handles variations in folder names (case-insensiti
 - Gradient and parameter tracking
 - Learning rate scheduling
 
-## Comparison: MLflow vs W&B
+## Experimental Comparison: MLflow vs W&B
 
-### MLflow
-**Pros:**
+This project enables you to **empirically evaluate** both tools through:
+
+### Comparison Dimensions
+
+1. **User-Friendliness**
+   - Setup complexity and time
+   - Ease of navigation and finding experiments
+   - Learning curve and documentation quality
+   - Command-line vs GUI experience
+
+2. **Feature Set**
+   - Visualization quality and customization
+   - Experiment comparison capabilities
+   - Model management and versioning
+   - Integration with other tools
+   - Real-time monitoring and alerts
+
+3. **Integration into Workflow**
+   - Code changes required
+   - API simplicity and flexibility
+   - Workflow disruption
+   - Scalability for large teams
+   - Local vs cloud deployment options
+
+### Quick Comparison Overview
+
+**MLflow**
 - ✅ Local tracking by default (no account required)
 - ✅ Simple UI: `mlflow ui`
 - ✅ Good for local experiments and model registry
-- ✅ Integrated with MLflow model serving
 - ✅ Open-source and self-hostable
+- ⚠️ Basic visualization compared to W&B
+- ⚠️ Limited collaboration features
+- ⚠️ No real-time monitoring
 
-**Cons:**
-- ❌ Basic visualization compared to W&B
-- ❌ Limited collaboration features
-- ❌ No real-time monitoring
-
-### W&B
-**Pros:**
+**W&B**
 - ✅ Rich visualization and collaboration features
 - ✅ Real-time monitoring and alerts
 - ✅ Advanced experiment comparison tools
 - ✅ Cloud-based (accessible from anywhere)
-- ✅ Great for team collaboration
+- ⚠️ Requires account (free tier available)
+- ⚠️ Cloud-based (may require internet)
+- ⚠️ More complex setup for self-hosting
 
-**Cons:**
-- ❌ Requires account (free tier available)
-- ❌ Cloud-based (may require internet)
-- ❌ More complex setup for self-hosting
+**Note**: Run the grid search experiments on both tools to form your own empirical conclusions based on your specific use case and requirements.
 
-## Results
+## Experimental Results & Analysis
 
-After running the comparison script, you'll see:
-- Training time comparison
-- Best validation accuracy for each tool
-- Test set performance metrics
-- Detailed comparison of features
+### Running the Full Comparison
+
+1. **Execute Grid Search on Both Tools:**
+   ```bash
+   # MLflow: Run 162 experiments
+   python scripts/run_hyperparameter_tuning.py --config configs/mlflow/hyperparameters.yaml
+   
+   # W&B: Run 162 experiments (same hyperparameters)
+   python scripts/run_wandb_hyperparameter_tuning.py --config configs/wandb/hyperparameters.yaml
+   ```
+
+2. **Compare Results:**
+   - **MLflow UI**: `python -m mlflow ui` → http://localhost:5000
+   - **W&B Dashboard**: https://wandb.ai → Select your project
+
+3. **Evaluate:**
+   - **User Experience**: Which tool is easier to navigate and use?
+   - **Visualization**: Which provides clearer, more useful visualizations?
+   - **Features**: Which tool offers features most valuable for your workflow?
+   - **Integration**: Which integrates more smoothly into your existing setup?
+
+### What to Compare
+
+After running experiments, evaluate:
+
+- **Setup & Onboarding**: Time and complexity to get started
+- **Experiment Management**: Ease of organizing and finding runs
+- **Visualization Quality**: Clarity and usefulness of charts and graphs
+- **Comparison Tools**: Ability to compare multiple experiments effectively
+- **Collaboration**: Team sharing and collaboration features
+- **Performance**: Overhead and impact on training time
+- **Scalability**: Handling of large numbers of experiments
+- **Documentation**: Quality and completeness of guides
+
+### Expected Outcomes
+
+This experimental evaluation will help you:
+- **Make informed decisions** about which tool fits your needs
+- **Understand trade-offs** between local vs cloud solutions
+- **Evaluate features** in the context of your actual workflow
+- **Compare user experience** through hands-on usage
 
 ## Requirements
 
@@ -376,6 +474,18 @@ After running the comparison script, you'll see:
 - Reduce batch size: `--batch_size 16`
 - Reduce image size: `--image_size 64`
 - Use CPU if GPU memory is limited: `--device cpu`
+
+## Research & Evaluation Purpose
+
+This project is designed for **experimental evaluation and research purposes**. It provides:
+
+- A **systematic approach** to comparing ML experiment tracking tools
+- **Reproducible methodology** for fair tool comparison
+- **Real-world use case** (medical imaging) for practical evaluation
+- **Automated grid search** for comprehensive data collection
+- **Objective framework** for evaluating user-friendliness, features, and integration
+
+The goal is to help researchers, practitioners, and teams make **data-driven decisions** when choosing between MLflow and W&B for their ML workflows.
 
 ## License
 

@@ -30,6 +30,11 @@ This document describes the improved project structure for better organization a
 │   ├── run_wandb_hyperparameter_tuning.py # W&B hyperparameter tuning
 │   └── start_mlflow_ui.py        # Start MLflow UI
 │
+├── tools/                        # Utility and maintenance scripts
+│   ├── cleanup_duplicates.py     # Cleanup duplicate files
+│   ├── improve_structure.py      # Structure improvement utilities
+│   └── organize_project.py       # Project organization utilities
+│
 ├── examples/                     # Example scripts
 │   ├── example_mlflow_usage.py
 │   └── example_wandb_usage.py
@@ -45,24 +50,23 @@ This document describes the improved project structure for better organization a
 │       └── quick_test.yaml
 │
 ├── docs/                         # Documentation
-│   ├── mlflow/                   # MLflow documentation
-│   │   ├── MLFLOW_GUIDE.md
-│   │   ├── MLFLOW_QUICK_START.md
-│   │   └── HYPERPARAMETER_TUNING_GUIDE.md
-│   ├── wandb/                    # W&B documentation
-│   │   ├── WANDB_GUIDE.md
-│   │   ├── WANDB_QUICK_START.md
-│   │   └── WANDB_HYPERPARAMETER_TUNING_GUIDE.md
-│   ├── examples/                 # Example documentation
-│   │   ├── PARAMETER_MATRIX_EXAMPLE.md
-│   │   └── WANDB_PARAMETER_MATRIX_EXAMPLE.md
-│   └── README_HYPERPARAMETER_TUNING.md
+│   ├── MLFLOW_COMPLETE_GUIDE.md  # Complete MLflow guide (includes all topics)
+│   ├── WANDB_COMPLETE_GUIDE.md   # Complete W&B guide (includes all topics)
+│   ├── README.md                 # Documentation index
+│   ├── BASE_CONFIG_OPTIONS.md
+│   ├── STRUCTURE_IMPROVEMENTS.md
+│   ├── TESTING_GUIDE.md
+│   ├── DOCUMENTATION_IMPROVEMENTS.md
+│   └── MIGRATION_GUIDE.md
 │
 ├── tests/                        # Unit tests
 │   ├── __init__.py
-│   ├── test_models.py
-│   ├── test_data_loader.py
-│   └── test_tracking.py
+│   ├── conftest.py               # Pytest fixtures and configuration
+│   ├── test_models.py            # Model tests
+│   ├── test_data_loader.py       # Data loader tests
+│   ├── test_tracking.py          # Tracking tests
+│   ├── test_integration.py       # Integration tests
+│   └── README.md                 # Testing documentation
 │
 ├── notebooks/                    # Jupyter notebooks (optional)
 │   └── .gitkeep
@@ -81,11 +85,14 @@ This document describes the improved project structure for better organization a
 ├── wandb/                        # W&B runs (gitignored)
 │
 ├── main.py                       # Main entry point (dataset download)
+├── run_tests.py                  # Test runner script
+├── pytest.ini                    # Pytest configuration
 ├── requirements.txt              # Python dependencies
 ├── setup.py                      # Package setup (optional)
 ├── .gitignore                    # Git ignore rules
-├── PROJECT_STRUCTURE.md          # This file
-└── README.md                     # Main documentation
+├── README.md                     # Main documentation
+├── QUICK_START.md                # Quick start guide
+└── PROJECT_STRUCTURE.md          # This file
 ```
 
 ## Organization Principles
@@ -115,6 +122,12 @@ This document describes the improved project structure for better organization a
 - **Utilities**:
   - `start_mlflow_ui.py`: Start MLflow UI server
 
+### 2b. Tools (`tools/`)
+- **Maintenance Scripts**:
+  - `cleanup_duplicates.py`: Cleanup duplicate files
+  - `improve_structure.py`: Structure improvement utilities
+  - `organize_project.py`: Project organization utilities
+
 ### 3. Examples (`examples/`)
 - Example usage scripts
 - Demo scripts showing how to use the tracking tools
@@ -131,10 +144,14 @@ This document describes the improved project structure for better organization a
   - `quick_test.yaml`: Quick test configuration for W&B
 
 ### 5. Documentation (`docs/`)
-- **mlflow/**: MLflow-specific documentation
-- **wandb/**: W&B-specific documentation
-- **examples/**: Example documentation and guides
-- Main documentation files
+- **MLflow Documentation**: `MLFLOW_COMPLETE_GUIDE.md` - Comprehensive guide covering quick start, training, hyperparameter tuning, grid search, and examples
+- **W&B Documentation**: `WANDB_COMPLETE_GUIDE.md` - Comprehensive guide covering quick start, training, hyperparameter tuning, grid search, and examples
+- **General Documentation**: Other documentation files (BASE_CONFIG_OPTIONS.md, TESTING_GUIDE.md, etc.)
+  - README.md (documentation index)
+  - BASE_CONFIG_OPTIONS.md
+  - STRUCTURE_IMPROVEMENTS.md
+  - TESTING_GUIDE.md
+  - DOCUMENTATION_IMPROVEMENTS.md
 
 ### 6. Tests (`tests/`)
 - Unit tests for models
@@ -155,9 +172,10 @@ This document describes the improved project structure for better organization a
 - Use YAML format for configuration files
 
 ### Documentation Files
-- Use UPPER_SNAKE_CASE: `MLFLOW_GUIDE.md`, `WANDB_QUICK_START.md`
+- Use UPPER_SNAKE_CASE: `MLFLOW_COMPLETE_GUIDE.md`, `WANDB_COMPLETE_GUIDE.md`
 - Descriptive names that indicate content
-- Organize by topic in subdirectories
+- All documentation files are in `docs/` directory (no subdirectories)
+- Each tool has one comprehensive guide covering all topics
 
 ## Import Structure
 
@@ -235,6 +253,7 @@ The following directories/files should be gitignored:
 - `Covid19-dataset/`: Dataset (if large, or keep if small)
 - `.env`: Environment variables
 - `*.log`: Log files
+- `tools/`: Utility scripts (optional, can be versioned)
 
 ## Next Steps
 

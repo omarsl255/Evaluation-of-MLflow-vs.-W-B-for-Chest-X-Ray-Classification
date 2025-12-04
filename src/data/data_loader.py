@@ -265,7 +265,7 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
         batch_size=batch_size, 
         shuffle=True,
         num_workers=2,
-        pin_memory=True
+        pin_memory=False
     )
     
     val_loader = DataLoader(
@@ -273,7 +273,7 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
         batch_size=batch_size, 
         shuffle=False,
         num_workers=2,
-        pin_memory=True
+        pin_memory=False
     )
     
     test_loader = DataLoader(
@@ -281,7 +281,7 @@ def load_dataset_from_directory(dataset_path, image_size=128, batch_size=32,
         batch_size=batch_size, 
         shuffle=False,
         num_workers=2,
-        pin_memory=True
+        pin_memory=False
     )
     
     return train_loader, val_loader, test_loader, class_names

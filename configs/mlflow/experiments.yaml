@@ -15,7 +15,7 @@ base_config:
   test_after_training: true
 
 mlflow_config:
-  experiment_name: "Specific-Experiments"
+  experiment_name: "Specific-Experiments1"
   use_run_names: true
 
 # Define specific experiments to run

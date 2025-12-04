@@ -70,5 +70,5 @@ temp_kaggle_download/
 Thumbs.db
 
 # Project-specific
-improve_structure.py
-organize_project.py
+tools/
+*.pyc

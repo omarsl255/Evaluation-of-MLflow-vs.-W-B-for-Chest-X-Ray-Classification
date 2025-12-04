@@ -83,6 +83,14 @@ def run_experiment(config, params, experiment_name=None, run_name=None):
     
     print(f"Using device: {device}")
     
+    # Validate dataset path
+    dataset_path = full_config.get('dataset_path')
+    if not dataset_path:
+        raise ValueError("dataset_path is not specified in config")
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(f"Dataset path does not exist: {dataset_path}")
+    print(f"Dataset path: {dataset_path} (verified)")
+    
     # Prepare config for data loader
     data_config = {
         'batch_size': full_config['batch_size'],
@@ -164,11 +172,16 @@ def run_experiment(config, params, experiment_name=None, run_name=None):
         
     except Exception as e:
         print(f"\n✗ Experiment '{run_name}' failed with error: {e}")
+        print(f"Error type: {type(e).__name__}")
         import traceback
+        print("\nFull traceback:")
         traceback.print_exc()
         # Make sure to finish the run even on error
-        if wandb.run is not None:
-            wandb.finish()
+        try:
+            if wandb.run is not None:
+                wandb.finish()
+        except:
+            pass
         return False
 
 
@@ -207,12 +220,19 @@ def main():
     
     args = parser.parse_args()
     
-    # Check if W&B is logged in
+    # Check if W&B is logged in (verify API key exists)
     try:
-        wandb.login()
+        # Try to get API key from environment or netrc
+        api_key = wandb.api.api_key
+        if not api_key:
+            print("Warning: W&B API key not found. Make sure you've run 'python -m wandb login' or 'wandb login'")
+            print("Continuing anyway, but W&B logging may fail...")
+        else:
+            print("✓ W&B API key found")
     except Exception as e:
-        print("Warning: Could not verify W&B login. Make sure you've run 'wandb login'")
-        print("Continuing anyway...")
+        print(f"Warning: Could not verify W&B login: {e}")
+        print("Make sure you've run 'python -m wandb login' or 'wandb login'")
+        print("Continuing anyway, but W&B logging may fail...")
     
     # Load configuration
     if not os.path.exists(args.config):

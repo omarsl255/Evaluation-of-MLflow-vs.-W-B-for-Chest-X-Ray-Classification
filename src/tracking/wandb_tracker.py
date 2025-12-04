@@ -37,18 +37,65 @@ class WandBTracker:
     
     def init(self, run_name=None, tags=None, resume=None):
         """Initialize a new W&B run"""
-        return wandb.init(
-            project=self.project_name,
-            entity=self.entity,
-            config=self.config,
-            name=run_name,
-            tags=tags,
-            resume=resume
-        )
+        import os
+        # Disable code and package tracking to avoid metadata errors
+        os.environ['WANDB_DISABLE_CODE'] = 'true'
+        
+        # Patch working_set at the source to handle None metadata
+        try:
+            import wandb.util
+            from importlib.metadata import distributions
+            
+            def safe_working_set():
+                """Safe working_set that handles None metadata gracefully"""
+                for d in distributions():
+                    try:
+                        # Check if metadata exists before accessing it
+                        if d.metadata is None:
+                            continue
+                        if "Name" not in d.metadata:
+                            continue
+                        # Only yield if we can safely access the metadata
+                        from wandb.util import InstalledDistribution
+                        yield InstalledDistribution(key=d.metadata["Name"], version=d.version)
+                    except (TypeError, AttributeError, KeyError):
+                        # Skip this package if metadata is corrupted
+                        continue
+            
+            wandb.util.working_set = safe_working_set
+        except Exception:
+            pass  # If patching fails, try to continue anyway
+        
+        try:
+            return wandb.init(
+                project=self.project_name,
+                entity=self.entity,
+                config=self.config,
+                name=run_name,
+                tags=tags,
+                resume=resume
+            )
+        except TypeError as e:
+            if "'NoneType' object is not subscriptable" in str(e) or "NoneType" in str(e):
+                # If package tracking fails, try with offline mode
+                print("Warning: Package tracking failed, continuing with W&B in offline mode...")
+                return wandb.init(
+                    project=self.project_name,
+                    entity=self.entity,
+                    config=self.config,
+                    name=run_name,
+                    tags=tags,
+                    resume=resume,
+                    mode="offline"  # Run in offline mode to skip package tracking
+                )
+            raise
     
-    def log(self, metrics, step=None):
+    def log(self, metrics, step=None, commit=None):
         """Log metrics"""
-        wandb.log(metrics, step=step)
+        if commit is not None:
+            wandb.log(metrics, step=step, commit=commit)
+        else:
+            wandb.log(metrics, step=step)
     
     def log_model(self, model, artifact_path="model"):
         """Log PyTorch model as artifact"""
@@ -123,6 +170,7 @@ def train_with_wandb(model, train_loader, val_loader, config, num_epochs,
     
     best_val_acc = 0.0
     best_model_state = None
+    global_step = 0  # Global step counter for consistent step numbering
     
     for epoch in range(num_epochs):
         # Training phase
@@ -150,12 +198,15 @@ def train_with_wandb(model, train_loader, val_loader, config, num_epochs,
             train_correct += (predicted == labels).sum().item()
             
             # Log batch-level metrics occasionally
+            # Use step calculation that ensures monotonic increase
             if batch_idx % 10 == 0:
                 batch_acc = 100 * (predicted == labels).sum().item() / labels.size(0)
+                batch_step = epoch * len(train_loader) + batch_idx
                 tracker.log({
                     'batch_loss': loss.item(),
                     'batch_accuracy': batch_acc
-                }, step=epoch * len(train_loader) + batch_idx)
+                }, step=batch_step, commit=True)
+            global_step += 1
         
         # Validation phase
         model.eval()
@@ -228,13 +279,17 @@ def train_with_wandb(model, train_loader, val_loader, config, num_epochs,
             metrics[f'val/recall_{class_name}'] = recall[i]
             metrics[f'val/f1_{class_name}'] = f1[i]
         
-        tracker.log(metrics, step=epoch)
+        # Log epoch-level metrics with step that's always greater than batch steps
+        # Use epoch * len(train_loader) + len(train_loader) to ensure it's after all batch steps
+        epoch_step = epoch * len(train_loader) + len(train_loader)
+        tracker.log(metrics, step=epoch_step, commit=True)
         
         # Create and log confusion matrix every few epochs
         if (epoch + 1) % 5 == 0 or epoch == 0:
             cm = confusion_matrix(all_labels, all_preds)
             fig = plot_confusion_matrix(cm, class_names)
-            tracker.log({'confusion_matrix': wandb.Image(fig)})
+            epoch_step = epoch * len(train_loader) + len(train_loader)
+            tracker.log({'confusion_matrix': wandb.Image(fig)}, step=epoch_step)
             plt.close(fig)
         
         # Save best model
@@ -244,13 +299,27 @@ def train_with_wandb(model, train_loader, val_loader, config, num_epochs,
             # Log model artifact (save periodically, not every epoch)
             if (epoch + 1) % 5 == 0 or epoch == num_epochs - 1:
                 import tempfile
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.pth') as f:
-                    torch.save(model.state_dict(), f.name)
+                import os
+                temp_file = None
+                try:
+                    # Create temporary file and ensure it's closed before W&B accesses it
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.pth') as f:
+                        temp_file = f.name
+                        torch.save(model.state_dict(), temp_file)
+                    # File is now closed, safe to add to artifact
                     artifact = wandb.Artifact('best_model', type='model')
-                    artifact.add_file(f.name)
+                    artifact.add_file(temp_file)
                     run.log_artifact(artifact)
-                    import os
-                    os.remove(f.name)
+                finally:
+                    # Clean up temporary file after a short delay to ensure W&B has read it
+                    if temp_file and os.path.exists(temp_file):
+                        try:
+                            import time
+                            time.sleep(0.1)  # Brief delay to ensure file is released
+                            os.remove(temp_file)
+                        except (PermissionError, OSError):
+                            # If file is still locked, try to delete it later (non-blocking)
+                            pass
         
         # Print progress
         print(f'Epoch [{epoch+1}/{num_epochs}]')
@@ -262,8 +331,9 @@ def train_with_wandb(model, train_loader, val_loader, config, num_epochs,
     # Load best model
     model.load_state_dict(best_model_state)
     
-    # Log best validation accuracy
-    tracker.log({'best_val_accuracy': best_val_acc})
+    # Log best validation accuracy (use final step that's after all training)
+    final_step = num_epochs * len(train_loader) + len(train_loader)
+    tracker.log({'best_val_accuracy': best_val_acc}, step=final_step)
     
     # Final confusion matrix
     model.eval()
@@ -279,7 +349,7 @@ def train_with_wandb(model, train_loader, val_loader, config, num_epochs,
     
     cm = confusion_matrix(all_labels, all_preds)
     fig = plot_confusion_matrix(cm, class_names, title='Final Validation Confusion Matrix')
-    tracker.log({'final_confusion_matrix': wandb.Image(fig)})
+    tracker.log({'final_confusion_matrix': wandb.Image(fig)}, step=final_step)
     plt.close(fig)
     
     print(f"\nTraining completed!")

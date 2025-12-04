@@ -3,28 +3,50 @@
 # Each experiment will be run with a combination of parameters
 
 # Base configuration (applies to all experiments)
+# These parameters are fixed for all experiments in the grid search
+# See docs/BASE_CONFIG_OPTIONS.md for detailed options and examples
 base_config:
-  dataset_path: "Covid19-dataset"
-  image_size: 128
-  device: "auto"  # "auto", "cuda", or "cpu"
-  train_split: 0.8
-  val_split: 0.1
-  test_split: 0.1
-  random_seed: 42
-  optimizer: "Adam"
-  loss_function: "CrossEntropyLoss"
-  lr_step_size: 7
-  lr_gamma: 0.1
-  test_after_training: true  # Evaluate on test set after training
+  # Dataset path (required)
+  dataset_path: "Covid19-dataset"  # Options: Any valid path string
+  
+  # Image size for resizing (all images resized to this)
+  image_size: 128  # Options: 64, 128, 224, 256, 512 (larger = slower but more detail)
+  
+  # Computing device
+  device: "auto"  # Options: "auto" (recommended), "cuda", "cpu", "cuda:0" (specific GPU)
+  
+  # Data split ratios (must sum to 1.0)
+  train_split: 0.8   # Options: 0.0-1.0 (e.g., 0.7, 0.8, 0.9)
+  val_split: 0.1     # Options: 0.0-1.0 (e.g., 0.1, 0.15, 0.2)
+  test_split: 0.1    # Options: 0.0-1.0 (e.g., 0.1, 0.05, 0.15)
+  
+  # Random seed for reproducibility
+  random_seed: 42  # Options: Any integer (e.g., 42, 123, 2024)
+  
+  # Optimizer type
+  optimizer: "Adam"  # Options: "Adam" (default), "SGD", "AdamW", "RMSprop", "Adagrad", "Adadelta"
+  
+  # Loss function
+  loss_function: "CrossEntropyLoss"  # Options: "CrossEntropyLoss" (default), "NLLLoss"
+  
+  # Learning rate scheduler parameters (base values, can be overridden in parameter_grid)
+  lr_step_size: 7   # Options: Any positive integer (5, 7, 10, 15) - epochs between LR decay
+  lr_gamma: 0.1      # Options: 0.0-1.0 (0.1=strong decay, 0.5=moderate, 0.9=gentle)
+  
+  # Evaluation setting
+  test_after_training: true  # Options: true (recommended), false (skip test evaluation)
 
-# Parameter grid for hyperparameter tuning
+# Parameter grid for GRID SEARCH hyperparameter tuning
 # Each key represents a parameter, and values is a list of values to try
+# Grid search will generate ALL combinations of these parameters
+# Total combinations = product of all list lengths
+# Current grid: 3 × 3 × 3 × 2 × 3 = 162 combinations
 parameter_grid:
-  learning_rate: [0.001, 0.0001, 0.01]
-  batch_size: [32, 64, 16]
-  num_epochs: [20, 30, 50]
-  lr_gamma: [0.1, 0.5]
-  lr_step_size: [5, 7, 10]
+  learning_rate: [0.001, 0.0001, 0.01]      # 3 values
+  batch_size: [32, 64, 16]                   # 3 values
+  num_epochs: [5, 10, 12]                   # 3 values
+  lr_gamma: [0.1, 0.5]                       # 2 values
+  lr_step_size: [5, 7, 10]                  # 3 values
 
 # Alternative: Define specific experiments (comment out parameter_grid to use this)
 # experiments:
@@ -57,10 +79,10 @@ mlflow_config:
 
 # Execution settings
 execution:
-  # Set max_experiments to None or remove this line to run ALL combinations
-  # Current grid generates 162 combinations (3×3×3×2×3)
-  max_experiments: 10  # Maximum number of experiments to run (set to null or remove to run all)
-  shuffle: true  # Shuffle experiments before running
+  # GRID SEARCH: Set max_experiments to null to run ALL 162 combinations
+  # Or set a number to limit experiments (useful for testing)
+  max_experiments: null  # null = run all combinations, or set a number to limit
+  shuffle: true  # Shuffle experiments before running (useful for parallel execution)
   continue_on_error: true  # Continue to next experiment if one fails
 
 # Quick test configuration (fewer experiments)
