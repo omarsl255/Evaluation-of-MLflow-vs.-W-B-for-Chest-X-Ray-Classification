@@ -99,6 +99,7 @@ This real-world medical imaging classification task serves as the experimental u
 ## Model Architecture
 
 The project uses a custom CNN architecture (`CustomCXRClassifier`) designed for Chest X-Ray classification. The model architecture is based on the implementation from [Vinay10100/Chest-X-Ray-Classification](https://github.com/Vinay10100/Chest-X-Ray-Classification).
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/655d4102-d1ae-4006-8591-800dcecd7f3e" />
 
 ### Architecture Details:
 
